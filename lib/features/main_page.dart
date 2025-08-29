@@ -36,7 +36,7 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(
               size: 24,
-              _selectedIndex == 0 ? Iconsax.health5 : Iconsax.health,
+              _selectedIndex == 0 ? Iconsax.heart5 : Iconsax.heart,
               color: _selectedIndex == 0
                   ? AppColors.primary
                   : AppColors.mutedForeground,

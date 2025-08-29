@@ -28,18 +28,27 @@ class MeasurePage extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             child: Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.white,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
+                Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.white,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(24),
+                          bottomRight: Radius.circular(24),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 50),
+                            child: Image.asset('assets/images/heart_rate.png'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [Image.asset('assets/images/heart_rate.png')],
-                  ),
+                  ],
                 ),
               ],
             ),
