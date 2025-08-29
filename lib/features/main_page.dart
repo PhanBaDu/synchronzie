@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:synchronzie/features/health/pages/health_page.dart';
 import 'package:synchronzie/features/measure/measure_page.dart';
+import 'package:synchronzie/features/navigation_item.dart';
 import 'package:synchronzie/features/settings/pages/settings_page.dart';
 
 @RoutePage()
@@ -39,70 +40,23 @@ class _MainPageState extends State<MainPage> {
           });
         },
         items: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _selectedIndex != 0 ? Iconsax.lovely : Iconsax.lovely5,
-                color: _selectedIndex != 0
-                    ? Color(0xFF737373)
-                    : Color(0xFFFF2056),
-                size: 24,
-              ),
-              if (_selectedIndex != 0)
-                const Text(
-                  "Health",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF737373),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-            ],
+          NavigationItem(
+            inactiveIcon: Iconsax.lovely,
+            activeIcon: Iconsax.lovely5,
+            label: "Health",
+            isSelected: _selectedIndex == 0,
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _selectedIndex != 1 ? Iconsax.add_square : Iconsax.add_square5,
-                color: _selectedIndex != 1
-                    ? Color(0xFF737373)
-                    : Color(0xFFFF2056),
-                size: 24,
-              ),
-              if (_selectedIndex != 1)
-                const Text(
-                  "Health",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF737373),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-            ],
+          NavigationItem(
+            inactiveIcon: Iconsax.add_square,
+            activeIcon: Iconsax.add_square5,
+            label: "Measure", // Sửa label từ "Health" thành "Measure"
+            isSelected: _selectedIndex == 1,
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _selectedIndex != 2
-                    ? Iconsax.personalcard
-                    : Iconsax.personalcard5,
-                color: _selectedIndex != 2
-                    ? Color(0xFF737373)
-                    : Color(0xFFFF2056),
-                size: 24,
-              ),
-              if (_selectedIndex != 2)
-                const Text(
-                  "Profile",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF737373),
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-            ],
+          NavigationItem(
+            inactiveIcon: Iconsax.personalcard,
+            activeIcon: Iconsax.personalcard5,
+            label: "Profile",
+            isSelected: _selectedIndex == 2,
           ),
         ],
       ),
