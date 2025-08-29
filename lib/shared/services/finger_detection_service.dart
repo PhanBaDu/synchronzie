@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'dart:math' as math;
 
 class FingerDetectionConfig {
   final int throttleMs;
@@ -8,6 +9,9 @@ class FingerDetectionConfig {
   final double redDominanceThreshold;
   final double minRedLuma;
   final double coverageThreshold;
+  final int historySize; // số mẫu lịch sử để kiểm tra biến thiên
+  final int minHistoryMs; // tối thiểu thời gian lịch sử để đánh giá
+  final double minTemporalVariation; // ngưỡng biến thiên tương đối tối thiểu
 
   const FingerDetectionConfig({
     this.throttleMs = 200,
@@ -17,6 +21,9 @@ class FingerDetectionConfig {
     this.redDominanceThreshold = 1.35,
     this.minRedLuma = 60,
     this.coverageThreshold = 0.80,
+    this.historySize = 24,
+    this.minHistoryMs = 1500,
+    this.minTemporalVariation = 0.01,
   });
 }
 
@@ -38,6 +45,8 @@ class FingerDetectionService {
   final FingerDetectionConfig config;
   DateTime? _lastProcessedAt;
   bool _isProcessing = false;
+  final List<double> _avgRedHistory = <double>[];
+  final List<DateTime> _historyTimes = <DateTime>[];
 
   bool shouldProcessNow() {
     final now = DateTime.now();
@@ -158,13 +167,45 @@ class FingerDetectionService {
 
     avgR /= sampleCount;
     final double coverage = redDominantCount / (sampleCount + 1e-6);
+    _pushHistory(avgR);
+    final bool hasTemporalVariation = _hasEnoughVariation();
     final bool detected =
-        coverage > config.coverageThreshold && avgR > config.minRedLuma;
+        coverage > config.coverageThreshold &&
+        avgR > config.minRedLuma &&
+        hasTemporalVariation;
 
     return FingerDetectionResult(
       detected: detected,
       coverage: coverage,
       avgRed: avgR,
     );
+  }
+
+  void _pushHistory(double avgRed) {
+    final now = DateTime.now();
+    _avgRedHistory.add(avgRed);
+    _historyTimes.add(now);
+    if (_avgRedHistory.length > config.historySize) {
+      _avgRedHistory.removeAt(0);
+      _historyTimes.removeAt(0);
+    }
+  }
+
+  bool _hasEnoughVariation() {
+    if (_avgRedHistory.length < 3) return false;
+    final Duration span = _historyTimes.last.difference(_historyTimes.first);
+    if (span.inMilliseconds < config.minHistoryMs) return false;
+
+    final double mean =
+        _avgRedHistory.reduce((a, b) => a + b) / _avgRedHistory.length;
+    if (mean <= 0) return false;
+    double sumSq = 0;
+    for (final v in _avgRedHistory) {
+      final double d = v - mean;
+      sumSq += d * d;
+    }
+    final double std = math.sqrt((sumSq / _avgRedHistory.length).abs());
+    final double rel = std / mean;
+    return rel >= config.minTemporalVariation;
   }
 }
