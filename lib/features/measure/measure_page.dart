@@ -9,8 +9,13 @@ class MeasurePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
-      navigationBar: CupertinoNavigationBar(middle: Text('Measure')),
-      child: Center(child: Text('Measure Page')),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoColors.white.withOpacity(0.7),
+        automaticBackgroundVisibility: false,
+        border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
+        middle: Text('Measure', style: TextStyle(color: CupertinoColors.label)),
+      ),
+      child: Center(child: Text('Measure')),
     );
   }
 }

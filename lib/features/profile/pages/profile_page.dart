@@ -2,8 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 
 @RoutePage()
-class HealthPage extends StatelessWidget {
-  const HealthPage({super.key});
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +13,9 @@ class HealthPage extends StatelessWidget {
         backgroundColor: CupertinoColors.white.withOpacity(0.7),
         automaticBackgroundVisibility: false,
         border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
-        middle: Text('Health', style: TextStyle(color: CupertinoColors.label)),
+        middle: Text('Profile', style: TextStyle(color: CupertinoColors.label)),
       ),
-      child: Center(child: Text('Health Page')),
+      child: Center(child: Text('Profile Page')),
     );
   }
 }

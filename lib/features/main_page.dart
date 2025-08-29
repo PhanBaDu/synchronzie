@@ -6,7 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:synchronzie/features/health/pages/health_page.dart';
 import 'package:synchronzie/features/measure/measure_page.dart';
 import 'package:synchronzie/features/navigation_item.dart';
-import 'package:synchronzie/features/settings/pages/settings_page.dart';
+import 'package:synchronzie/features/profile/pages/profile_page.dart';
 
 @RoutePage()
 class MainPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _MainPageState extends State<MainPage> {
   final List<Widget> _pages = [
     const HealthPage(),
     const MeasurePage(),
-    const SettingsPage(),
+    const ProfilePage(),
   ];
 
   @override
@@ -32,7 +32,9 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: CurvedNavigationBar(
         height: 75,
         index: _selectedIndex,
-        backgroundColor: CupertinoColors.secondarySystemBackground,
+        backgroundColor: CupertinoColors.secondarySystemBackground.withOpacity(
+          0.9,
+        ),
         animationDuration: const Duration(milliseconds: 350),
         onTap: (index) {
           setState(() {

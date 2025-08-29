@@ -11,7 +11,7 @@
 import 'package:auto_route/auto_route.dart' as _i4;
 import 'package:synchronzie/features/health/pages/health_page.dart' as _i1;
 import 'package:synchronzie/features/main_page.dart' as _i2;
-import 'package:synchronzie/features/settings/pages/settings_page.dart' as _i3;
+import 'package:synchronzie/features/profile/pages/profile_page.dart' as _i3;
 
 abstract class $AppRouter extends _i4.RootStackRouter {
   $AppRouter({super.navigatorKey});
@@ -33,7 +33,7 @@ abstract class $AppRouter extends _i4.RootStackRouter {
     SettingsRoute.name: (routeData) {
       return _i4.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i3.SettingsPage(),
+        child: const _i3.ProfilePage(),
       );
     },
   };
@@ -43,10 +43,7 @@ abstract class $AppRouter extends _i4.RootStackRouter {
 /// [_i1.HealthPage]
 class HealthRoute extends _i4.PageRouteInfo<void> {
   const HealthRoute({List<_i4.PageRouteInfo>? children})
-      : super(
-          HealthRoute.name,
-          initialChildren: children,
-        );
+    : super(HealthRoute.name, initialChildren: children);
 
   static const String name = 'HealthRoute';
 
@@ -57,10 +54,7 @@ class HealthRoute extends _i4.PageRouteInfo<void> {
 /// [_i2.MainPage]
 class MainRoute extends _i4.PageRouteInfo<void> {
   const MainRoute({List<_i4.PageRouteInfo>? children})
-      : super(
-          MainRoute.name,
-          initialChildren: children,
-        );
+    : super(MainRoute.name, initialChildren: children);
 
   static const String name = 'MainRoute';
 
@@ -71,10 +65,7 @@ class MainRoute extends _i4.PageRouteInfo<void> {
 /// [_i3.SettingsPage]
 class SettingsRoute extends _i4.PageRouteInfo<void> {
   const SettingsRoute({List<_i4.PageRouteInfo>? children})
-      : super(
-          SettingsRoute.name,
-          initialChildren: children,
-        );
+    : super(SettingsRoute.name, initialChildren: children);
 
   static const String name = 'SettingsRoute';
 
