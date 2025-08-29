@@ -16,6 +16,8 @@ dependencies:
   iconsax: ^0.0.8
   auto_route: ^7.8.4
   curved_navigation_bar: ^1.0.6
+  permission_handler: ^11.3.1
+  camera: ^0.10.5+9
 
 dev_dependencies:
   flutter_test:

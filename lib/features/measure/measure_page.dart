@@ -1,10 +1,24 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:synchronzie/shared/colors/colors.dart';
+import 'package:synchronzie/shared/permissions/camera_permission.dart';
 
 @RoutePage()
-class MeasurePage extends StatelessWidget {
+class MeasurePage extends StatefulWidget {
   const MeasurePage({super.key});
+
+  @override
+  State<MeasurePage> createState() => _MeasurePageState();
+}
+
+class _MeasurePageState extends State<MeasurePage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      await CameraPermission.ensure();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +104,8 @@ class MeasurePage extends StatelessWidget {
                       child: Center(
                         child: CupertinoButton(
                           minSize: 0,
-                          onPressed: () {
-                            // TODO: Add your action here
+                          onPressed: () async {
+                            await CameraPermission.ensure();
                           },
                           child: Text(
                             "Start",
