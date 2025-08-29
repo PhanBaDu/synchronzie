@@ -23,8 +23,6 @@ class _MeasurePageState extends State<MeasurePage>
   int measurementDurationSeconds = 35; // dễ dàng thay đổi thời gian đo
   bool _fingerOn = false;
   bool _streaming = false;
-  // Debug ratio để hiển thị mức đỏ (có thể hiện trong UI sau này)
-  double _redRatio = 0.0;
   // các cờ throttling đã chuyển vào service
   final FingerDetectionService _detector = FingerDetectionService();
 
@@ -127,7 +125,6 @@ class _MeasurePageState extends State<MeasurePage>
     }
     _streaming = false;
     _fingerOn = false;
-    _redRatio = 0.0;
     _isToggling = false;
   }
 
@@ -136,7 +133,6 @@ class _MeasurePageState extends State<MeasurePage>
     if (!_detector.shouldProcessNow()) return;
 
     final result = _detector.analyze(image);
-    _redRatio = result.coverage;
     final bool detected = result.detected;
 
     if (detected != _fingerOn) {
@@ -154,6 +150,10 @@ class _MeasurePageState extends State<MeasurePage>
     } else {
       if (_progressController.isAnimating) {
         _progressController.stop();
+      }
+      // Khi không xác thực được ngón tay, reset thời lượng về 0 để đo lại từ đầu
+      if (_progressController.value > 0.0) {
+        _progressController.reset();
       }
     }
   }
@@ -274,47 +274,7 @@ class _MeasurePageState extends State<MeasurePage>
                         ),
                       ),
                     ),
-                    Positioned(
-                      bottom: 24,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                (_controller != null &&
-                                    _controller!.value.isInitialized)
-                                ? (_fingerOn
-                                      ? CupertinoColors.activeGreen
-                                      : CupertinoColors.systemRed)
-                                : CupertinoColors.inactiveGray,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                (_controller == null ||
-                                        !_controller!.value.isInitialized)
-                                    ? 'Nhấn Start để bắt đầu'
-                                    : (_fingerOn
-                                          ? 'Đã phát hiện ngón tay (C:${_redRatio.toStringAsFixed(2)})'
-                                          : 'Đặt ngón tay full camera + đèn (C:${_redRatio.toStringAsFixed(2)})'),
-                                style: TextStyle(
-                                  color: CupertinoColors.white,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Removed bottom status text used only for testing
                   ],
                 ),
                 Container(
