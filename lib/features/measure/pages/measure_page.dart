@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:synchronzie/shared/colors/colors.dart';
 import 'package:synchronzie/shared/permissions/camera_permission.dart';
 import 'package:camera/camera.dart';
+import 'package:synchronzie/features/measure/widgets/camera_overlay.dart';
+import 'package:synchronzie/features/measure/widgets/progress_ring.dart';
 
 @RoutePage()
 class MeasurePage extends StatefulWidget {
@@ -150,34 +152,11 @@ class _MeasurePageState extends State<MeasurePage>
                       width: double.infinity,
                       color: CupertinoColors.white,
                       child: Center(
-                        child: SizedBox(
-                          width: 380,
-                          height: 380,
-                          child: Stack(
-                            alignment: Alignment.center, // căn giữa các widget
-                            children: [
-                              // Camera preview
-                              if (_controller != null &&
-                                  _controller!.value.isInitialized)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: CameraPreview(_controller!),
-                                )
-                              else
-                                Container(
-                                  color: AppColors
-                                      .primary, // fallback khi chưa init
-                                ),
-
-                              // Ảnh overlay
-                              Image.asset(
-                                'assets/images/heart_rate.png',
-                                fit: BoxFit.cover,
-                                width: 380,
-                                height: 380,
-                              ),
-                            ],
-                          ),
+                        child: CameraOverlay(
+                          controller: _controller,
+                          size: 380,
+                          fallbackColor: AppColors.primary,
+                          overlayAsset: 'assets/images/heart_rate.png',
                         ),
                       ),
                     ),
@@ -206,19 +185,14 @@ class _MeasurePageState extends State<MeasurePage>
                       right: 0,
                       bottom: 0,
                       child: Center(
-                        child: SizedBox(
-                          width: 340,
-                          height: 340,
-                          child: CustomPaint(
-                            painter: _CircularProgressPainter(
-                              progress: _progressController.value,
-                              trackColor: AppColors.mutedForeground.withOpacity(
-                                0.1,
-                              ),
-                              progressColor: AppColors.primary,
-                              strokeWidth: 6,
-                            ),
+                        child: CircularProgressRing(
+                          size: 340,
+                          progress: _progressController.value,
+                          trackColor: AppColors.mutedForeground.withOpacity(
+                            0.1,
                           ),
+                          progressColor: AppColors.primary,
+                          strokeWidth: 6,
                         ),
                       ),
                     ),
@@ -265,74 +239,12 @@ class _MeasurePageState extends State<MeasurePage>
                     ),
                   ),
                 ),
-                // removed bottom linear progress; using circular overlay instead
+                // progress ring is overlaid above
               ],
             ),
           ),
         ),
       ),
     );
-  }
-}
-
-class _CircularProgressPainter extends CustomPainter {
-  final double progress; // 0..1
-  final Color trackColor;
-  final Color progressColor;
-  final double strokeWidth;
-
-  _CircularProgressPainter({
-    required this.progress,
-    required this.trackColor,
-    required this.progressColor,
-    required this.strokeWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final center = rect.center;
-    final radius = (size.shortestSide - strokeWidth) / 2;
-
-    final trackPaint = Paint()
-      ..color = trackColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    final progressPaint = Paint()
-      ..color = progressColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    // Draw full track
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -90 * 3.1415926535 / 180,
-      360 * 3.1415926535 / 180,
-      false,
-      trackPaint,
-    );
-
-    // Draw progress arc
-    final sweep = (progress.clamp(0.0, 1.0)) * 360 * 3.1415926535 / 180;
-    if (sweep > 0) {
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -90 * 3.1415926535 / 180,
-        sweep,
-        false,
-        progressPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.trackColor != trackColor ||
-        oldDelegate.progressColor != progressColor ||
-        oldDelegate.strokeWidth != strokeWidth;
   }
 }

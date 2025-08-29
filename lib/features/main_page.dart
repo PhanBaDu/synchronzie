@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:synchronzie/features/health/pages/health_page.dart';
-import 'package:synchronzie/features/measure/measure_page.dart';
+import 'package:synchronzie/features/measure/pages/measure_page.dart';
 import 'package:synchronzie/features/profile/pages/profile_page.dart';
 import 'package:synchronzie/shared/colors/colors.dart';
 
