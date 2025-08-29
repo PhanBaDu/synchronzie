@@ -117,6 +117,7 @@ class _MeasurePageState extends State<MeasurePage>
       _controller = null;
     }
     try {
+      _progressController.reverseDuration = null;
       _progressController.stop();
       _progressController.reset();
     } catch (_) {}
@@ -127,7 +128,9 @@ class _MeasurePageState extends State<MeasurePage>
         }
       } catch (_) {}
       try {
-        if (_streaming) {
+        // Đặt cờ trước để khung hình đến muộn bị bỏ qua
+        _streaming = false;
+        if (controller.value.isStreamingImages) {
           await controller.stopImageStream();
         }
       } catch (_) {}
@@ -140,6 +143,10 @@ class _MeasurePageState extends State<MeasurePage>
 
   // Xử lý khung hình để ước lượng tỷ lệ đỏ trung bình (phát hiện ngón tay)
   void _onCameraImage(CameraImage image) {
+    // Bỏ qua nếu đã stop hoặc đang toggle
+    if (_controller == null || !_streaming) return;
+    final ctrl = _controller!;
+    if (!ctrl.value.isInitialized) return;
     if (!_detector.shouldProcessNow()) return;
 
     final result = _detector.analyze(image);
@@ -154,16 +161,40 @@ class _MeasurePageState extends State<MeasurePage>
 
     // Điều khiển tiến trình đo
     if (_fingerOn) {
+      // Khi trở lại trạng thái hợp lệ, đảm bảo forward dùng duration gốc
+      if (_progressController.reverseDuration != null) {
+        _progressController.reverseDuration = null;
+      }
       if (!_progressController.isAnimating && _progressController.value < 1.0) {
         _progressController.forward();
       }
     } else {
-      if (_progressController.isAnimating) {
-        _progressController.stop();
-      }
-      // Khi không xác thực được ngón tay, reset thời lượng về 0 để đo lại từ đầu
-      if (_progressController.value > 0.0) {
-        _progressController.reset();
+      // Khi không hợp lệ: chạy lùi nhanh về 0 thay vì reset tức thì
+      final double v = _progressController.value;
+      if (v > 0.0) {
+        final int totalMs = measurementDurationSeconds * 1000;
+        final int remainingMs = (totalMs * v).toInt();
+        int reverseMs;
+        if (remainingMs <= 5000) {
+          // Khi còn dưới 5s: chậm lại để mượt (400–800ms tuỳ phần còn lại)
+          reverseMs = (remainingMs * 0.5).toInt(); // 50% của phần còn lại
+          if (reverseMs < 400) reverseMs = 400;
+          if (reverseMs > 1500) reverseMs = 1500;
+        } else {
+          // Phần còn lại dài: tụt nhanh để phản hồi tốt (150–600ms)
+          reverseMs = ((remainingMs) * 0.12).toInt();
+          if (reverseMs < 150) reverseMs = 150;
+          if (reverseMs > 600) reverseMs = 600;
+        }
+        _progressController.reverseDuration = Duration(milliseconds: reverseMs);
+        if (_progressController.status != AnimationStatus.reverse ||
+            !_progressController.isAnimating) {
+          _progressController.reverse();
+        }
+      } else {
+        if (_progressController.isAnimating) {
+          _progressController.stop();
+        }
       }
     }
   }
