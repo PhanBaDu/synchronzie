@@ -19,7 +19,7 @@ class ProfilePage extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Inter',
             color: AppColors.primary,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),

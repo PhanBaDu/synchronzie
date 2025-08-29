@@ -13,13 +13,12 @@ class MeasurePage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoColors.white,
         automaticBackgroundVisibility: false,
-        border: Border.all(color: AppColors.mutedForeground.withOpacity(0.1)),
         middle: Text(
           'Measure',
           style: TextStyle(
             fontFamily: 'Inter',
             color: AppColors.primary,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
@@ -27,16 +26,19 @@ class MeasurePage extends StatelessWidget {
         child: CupertinoScrollbar(
           child: SingleChildScrollView(
             physics: BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Text(
-                  'Welcome to Health Dashboard',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [Image.asset('assets/images/heart_rate.png')],
                   ),
                 ),
               ],
