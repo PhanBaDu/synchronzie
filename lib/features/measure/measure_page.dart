@@ -39,10 +39,19 @@ class _MeasurePageState extends State<MeasurePage> {
 
       final controller = CameraController(
         back,
-        ResolutionPreset.high,
+        ResolutionPreset.max,
         enableAudio: false,
       );
       await controller.initialize();
+      try {
+        await controller.setFocusMode(FocusMode.auto);
+      } catch (_) {}
+      try {
+        await controller.setExposureMode(ExposureMode.auto);
+      } catch (_) {}
+      try {
+        await controller.setZoomLevel(1.0);
+      } catch (_) {}
       await controller.setFlashMode(FlashMode.torch);
       if (!mounted) {
         await controller.dispose();
@@ -119,14 +128,36 @@ class _MeasurePageState extends State<MeasurePage> {
                     Container(
                       width: double.infinity,
                       color: CupertinoColors.white,
-                      child: Column(
-                        children: [
-                          Container(
-                            color: AppColors.primary,
-                            width: double.infinity,
-                            child: Image.asset('assets/images/heart_rate.png'),
+                      child: Center(
+                        child: SizedBox(
+                          width: 380,
+                          height: 380,
+                          child: Stack(
+                            alignment: Alignment.center, // căn giữa các widget
+                            children: [
+                              // Camera preview
+                              if (_controller != null &&
+                                  _controller!.value.isInitialized)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: CameraPreview(_controller!),
+                                )
+                              else
+                                Container(
+                                  color: AppColors
+                                      .primary, // fallback khi chưa init
+                                ),
+
+                              // Ảnh overlay
+                              Image.asset(
+                                'assets/images/heart_rate.png',
+                                fit: BoxFit.cover,
+                                width: 380,
+                                height: 380,
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                     Positioned(
@@ -161,7 +192,7 @@ class _MeasurePageState extends State<MeasurePage> {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: AppColors.mutedForeground.withOpacity(0.1),
-                              width: 4,
+                              width: 5,
                             ),
                           ),
                         ),
@@ -210,20 +241,6 @@ class _MeasurePageState extends State<MeasurePage> {
                     ),
                   ),
                 ),
-                if (_controller != null && _controller!.value.isInitialized)
-                  Padding(
-                    padding: EdgeInsets.only(top: 16, bottom: 24),
-                    child: Center(
-                      child: SizedBox(
-                        width: 300,
-                        height: 300,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CameraPreview(_controller!),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
