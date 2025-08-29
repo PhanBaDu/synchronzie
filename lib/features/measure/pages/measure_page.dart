@@ -5,6 +5,7 @@ import 'package:synchronzie/shared/permissions/camera_permission.dart';
 import 'package:camera/camera.dart';
 import 'package:synchronzie/features/measure/widgets/camera_overlay.dart';
 import 'package:synchronzie/features/measure/widgets/progress_ring.dart';
+import 'package:synchronzie/shared/services/finger_detection_service.dart';
 
 @RoutePage()
 class MeasurePage extends StatefulWidget {
@@ -20,6 +21,12 @@ class _MeasurePageState extends State<MeasurePage>
   bool _isToggling = false;
   late final AnimationController _progressController;
   int measurementDurationSeconds = 35; // dễ dàng thay đổi thời gian đo
+  bool _fingerOn = false;
+  bool _streaming = false;
+  // Debug ratio để hiển thị mức đỏ (có thể hiện trong UI sau này)
+  double _redRatio = 0.0;
+  // các cờ throttling đã chuyển vào service
+  final FingerDetectionService _detector = FingerDetectionService();
 
   @override
   void initState() {
@@ -57,7 +64,7 @@ class _MeasurePageState extends State<MeasurePage>
 
       final controller = CameraController(
         back,
-        ResolutionPreset.max,
+        ResolutionPreset.low,
         enableAudio: false,
       );
       await controller.initialize();
@@ -78,9 +85,14 @@ class _MeasurePageState extends State<MeasurePage>
       setState(() {
         _controller = controller;
       });
-      _progressController
-        ..reset()
-        ..forward();
+      _progressController..reset();
+      // Bắt đầu xử lý luồng ảnh để kiểm tra màu (ngón tay đặt lên camera)
+      try {
+        await controller.startImageStream(_onCameraImage);
+        _streaming = true;
+      } catch (_) {
+        _streaming = false;
+      }
     } catch (_) {}
     _isToggling = false;
   }
@@ -106,9 +118,44 @@ class _MeasurePageState extends State<MeasurePage>
           await controller.setFlashMode(FlashMode.off);
         }
       } catch (_) {}
+      try {
+        if (_streaming) {
+          await controller.stopImageStream();
+        }
+      } catch (_) {}
       await controller.dispose();
     }
+    _streaming = false;
+    _fingerOn = false;
+    _redRatio = 0.0;
     _isToggling = false;
+  }
+
+  // Xử lý khung hình để ước lượng tỷ lệ đỏ trung bình (phát hiện ngón tay)
+  void _onCameraImage(CameraImage image) {
+    if (!_detector.shouldProcessNow()) return;
+
+    final result = _detector.analyze(image);
+    _redRatio = result.coverage;
+    final bool detected = result.detected;
+
+    if (detected != _fingerOn) {
+      _fingerOn = detected;
+      if (mounted) {
+        setState(() {});
+      }
+    }
+
+    // Điều khiển tiến trình đo
+    if (_fingerOn) {
+      if (!_progressController.isAnimating && _progressController.value < 1.0) {
+        _progressController.forward();
+      }
+    } else {
+      if (_progressController.isAnimating) {
+        _progressController.stop();
+      }
+    }
   }
 
   @override
@@ -223,6 +270,47 @@ class _MeasurePageState extends State<MeasurePage>
                               fontWeight: FontWeight.w900,
                               fontSize: 36,
                             ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 24,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                (_controller != null &&
+                                    _controller!.value.isInitialized)
+                                ? (_fingerOn
+                                      ? CupertinoColors.activeGreen
+                                      : CupertinoColors.systemRed)
+                                : CupertinoColors.inactiveGray,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                (_controller == null ||
+                                        !_controller!.value.isInitialized)
+                                    ? 'Nhấn Start để bắt đầu'
+                                    : (_fingerOn
+                                          ? 'Đã phát hiện ngón tay (C:${_redRatio.toStringAsFixed(2)})'
+                                          : 'Đặt ngón tay full camera + đèn (C:${_redRatio.toStringAsFixed(2)})'),
+                                style: TextStyle(
+                                  color: CupertinoColors.white,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
