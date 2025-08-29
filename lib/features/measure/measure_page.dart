@@ -74,8 +74,8 @@ class MeasurePage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: CupertinoColors.white,
                     borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(100),
-                      bottomRight: Radius.circular(100),
+                      bottomLeft: Radius.circular(36),
+                      bottomRight: Radius.circular(36),
                     ),
                   ),
                 ),
