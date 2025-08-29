@@ -45,6 +45,25 @@ class MeasurePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
+                      top: -20,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: Container(
+                          width: 340,
+                          height: 340,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: CupertinoColors.systemGrey4,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
                       top: 0,
                       left: 0,
                       right: 0,
