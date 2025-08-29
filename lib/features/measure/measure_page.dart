@@ -28,18 +28,12 @@ class MeasurePage extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             child: Column(
               children: [
-                Container(height: 30, color: CupertinoColors.white),
+                Container(height: 50, color: CupertinoColors.white),
                 Stack(
                   children: [
                     Container(
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                      ),
+                      color: CupertinoColors.white,
                       child: Column(
                         children: [
                           Container(
@@ -51,18 +45,40 @@ class MeasurePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 50, // cách trên 20
-                      left: 50, // cách trái 20
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        color: CupertinoColors.activeBlue,
-                        child: Center(child: Text("Absolute")),
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: CupertinoButton(
+                          minSize: 0,
+                          onPressed: () {
+                            // TODO: Add your action here
+                          },
+                          child: Text(
+                            "Start",
+                            style: TextStyle(
+                              color: CupertinoColors.white,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w900,
+                              fontSize: 36,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                Container(height: 30, color: CupertinoColors.white),
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(100),
+                      bottomRight: Radius.circular(100),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
