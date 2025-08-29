@@ -14,20 +14,16 @@ class MeasurePage extends StatelessWidget {
         backgroundColor: CupertinoColors.white.withOpacity(0.7),
         automaticBackgroundVisibility: false,
         border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
-        middle: ShaderMask(
-          shaderCallback: (bounds) =>
-              AppColors.customGradient.createShader(bounds),
-          child: Text(
-            'Measure',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.w700,
-            ),
+        middle: Text(
+          'Measure',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
-      child: Center(child: Text('Measure')),
+      child: Padding(padding: EdgeInsets.all(12), child: Text("123")),
     );
   }
 }

@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:synchronzie/features/health/pages/health_page.dart';
 import 'package:synchronzie/features/measure/measure_page.dart';
-import 'package:synchronzie/features/navigation_item.dart';
 import 'package:synchronzie/features/profile/pages/profile_page.dart';
+import 'package:synchronzie/shared/colors/colors.dart';
 
 @RoutePage()
 class MainPage extends StatefulWidget {
@@ -19,50 +17,66 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 1;
 
-  final List<Widget> _pages = [
-    const HealthPage(),
-    const MeasurePage(),
-    const ProfilePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return CupertinoTabScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
-      bottomNavigationBar: CurvedNavigationBar(
-        height: 75,
-        index: _selectedIndex,
-        backgroundColor: CupertinoColors.secondarySystemBackground.withOpacity(
-          0.9,
-        ),
-        animationDuration: const Duration(milliseconds: 350),
+      tabBar: CupertinoTabBar(
+        backgroundColor: CupertinoColors.white.withOpacity(0.9),
+        border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
+        currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
           });
         },
         items: [
-          NavigationItem(
-            inactiveIcon: Iconsax.lovely,
-            activeIcon: Iconsax.lovely5,
+          BottomNavigationBarItem(
+            icon: Icon(
+              size: 24,
+              _selectedIndex == 0 ? Iconsax.lovely5 : Iconsax.lovely,
+              color: _selectedIndex == 0
+                  ? AppColors.primary
+                  : AppColors.mutedForeground,
+            ),
             label: "Health",
-            isSelected: _selectedIndex == 0,
           ),
-          NavigationItem(
-            inactiveIcon: Iconsax.add_square,
-            activeIcon: Iconsax.add_square5,
-            label: "Measure", // Sửa label từ "Health" thành "Measure"
-            isSelected: _selectedIndex == 1,
+          BottomNavigationBarItem(
+            icon: Icon(
+              size: 24,
+              _selectedIndex == 1 ? Iconsax.add_square5 : Iconsax.add_square,
+              color: _selectedIndex == 1
+                  ? AppColors.primary
+                  : AppColors.mutedForeground,
+            ),
+            label: "Measure",
           ),
-          NavigationItem(
-            inactiveIcon: Iconsax.personalcard,
-            activeIcon: Iconsax.personalcard5,
+          BottomNavigationBarItem(
+            icon: Icon(
+              size: 24,
+              _selectedIndex == 2
+                  ? Iconsax.personalcard5
+                  : Iconsax.personalcard,
+              color: _selectedIndex == 2
+                  ? AppColors.primary
+                  : AppColors.mutedForeground,
+            ),
             label: "Profile",
-            isSelected: _selectedIndex == 2,
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
+      tabBuilder: (context, index) {
+        switch (index) {
+          case 0:
+            return const HealthPage();
+          case 1:
+            return const MeasurePage();
+          case 2:
+            return const ProfilePage();
+          default:
+            return const HealthPage();
+        }
+      },
     );
   }
 }
