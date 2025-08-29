@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       routerConfig: router.config(),
       title: 'Synchronzie',
       theme: CupertinoThemeData(primaryColor: CupertinoColors.systemBlue),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

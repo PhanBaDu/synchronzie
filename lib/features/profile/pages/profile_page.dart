@@ -11,7 +11,7 @@ class ProfilePage extends StatelessWidget {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: CupertinoColors.white.withOpacity(0.7),
+        backgroundColor: CupertinoColors.white,
         automaticBackgroundVisibility: false,
         border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
         middle: Text(
@@ -23,7 +23,27 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      child: Center(child: Text('Profile Page')),
+      child: SafeArea(
+        child: CupertinoScrollbar(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: [
+                Text(
+                  'Welcome to Health Dashboard',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

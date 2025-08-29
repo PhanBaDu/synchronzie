@@ -22,7 +22,7 @@ class _MainPageState extends State<MainPage> {
     return CupertinoTabScaffold(
       backgroundColor: CupertinoColors.secondarySystemBackground,
       tabBar: CupertinoTabBar(
-        backgroundColor: CupertinoColors.white.withOpacity(0.9),
+        backgroundColor: CupertinoColors.white,
         border: Border.all(color: AppColors.mutedForeground.withOpacity(0.1)),
         activeColor: AppColors.primary,
         inactiveColor: AppColors.mutedForeground,
@@ -36,7 +36,7 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(
               size: 24,
-              _selectedIndex == 0 ? Iconsax.lovely5 : Iconsax.lovely,
+              _selectedIndex == 0 ? Iconsax.health5 : Iconsax.health,
               color: _selectedIndex == 0
                   ? AppColors.primary
                   : AppColors.mutedForeground,
