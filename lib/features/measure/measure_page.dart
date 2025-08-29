@@ -12,13 +12,29 @@ class MeasurePage extends StatefulWidget {
   State<MeasurePage> createState() => _MeasurePageState();
 }
 
-class _MeasurePageState extends State<MeasurePage> {
+class _MeasurePageState extends State<MeasurePage>
+    with SingleTickerProviderStateMixin {
   CameraController? _controller;
   bool _isToggling = false;
+  late final AnimationController _progressController;
+  int measurementDurationSeconds = 35; // dễ dàng thay đổi thời gian đo
 
   @override
   void initState() {
     super.initState();
+    _progressController =
+        AnimationController(
+            vsync: this,
+            duration: Duration(seconds: measurementDurationSeconds),
+          )
+          ..addListener(() {
+            if (mounted) setState(() {});
+          })
+          ..addStatusListener((status) async {
+            if (status == AnimationStatus.completed) {
+              await _stopCamera();
+            }
+          });
     Future.microtask(() async {
       await CameraPermission.ensure();
     });
@@ -60,6 +76,9 @@ class _MeasurePageState extends State<MeasurePage> {
       setState(() {
         _controller = controller;
       });
+      _progressController
+        ..reset()
+        ..forward();
     } catch (_) {}
     _isToggling = false;
   }
@@ -75,6 +94,10 @@ class _MeasurePageState extends State<MeasurePage> {
     } else {
       _controller = null;
     }
+    try {
+      _progressController.stop();
+      _progressController.reset();
+    } catch (_) {}
     if (controller != null) {
       try {
         if (controller.value.isInitialized) {
@@ -94,6 +117,7 @@ class _MeasurePageState extends State<MeasurePage> {
       controller.setFlashMode(FlashMode.off).catchError((_) {});
       controller.dispose();
     }
+    _progressController.dispose();
     super.dispose();
   }
 
@@ -170,7 +194,7 @@ class _MeasurePageState extends State<MeasurePage> {
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: AppColors.mutedForeground.withOpacity(0.1),
-                              width: 1,
+                              width: 1.5,
                             ),
                           ),
                         ),
@@ -182,14 +206,17 @@ class _MeasurePageState extends State<MeasurePage> {
                       right: 0,
                       bottom: 0,
                       child: Center(
-                        child: Container(
+                        child: SizedBox(
                           width: 340,
                           height: 340,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.mutedForeground.withOpacity(0.1),
-                              width: 5,
+                          child: CustomPaint(
+                            painter: _CircularProgressPainter(
+                              progress: _progressController.value,
+                              trackColor: AppColors.mutedForeground.withOpacity(
+                                0.1,
+                              ),
+                              progressColor: AppColors.primary,
+                              strokeWidth: 6,
                             ),
                           ),
                         ),
@@ -238,11 +265,74 @@ class _MeasurePageState extends State<MeasurePage> {
                     ),
                   ),
                 ),
+                // removed bottom linear progress; using circular overlay instead
               ],
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class _CircularProgressPainter extends CustomPainter {
+  final double progress; // 0..1
+  final Color trackColor;
+  final Color progressColor;
+  final double strokeWidth;
+
+  _CircularProgressPainter({
+    required this.progress,
+    required this.trackColor,
+    required this.progressColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final center = rect.center;
+    final radius = (size.shortestSide - strokeWidth) / 2;
+
+    final trackPaint = Paint()
+      ..color = trackColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final progressPaint = Paint()
+      ..color = progressColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    // Draw full track
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -90 * 3.1415926535 / 180,
+      360 * 3.1415926535 / 180,
+      false,
+      trackPaint,
+    );
+
+    // Draw progress arc
+    final sweep = (progress.clamp(0.0, 1.0)) * 360 * 3.1415926535 / 180;
+    if (sweep > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -90 * 3.1415926535 / 180,
+        sweep,
+        false,
+        progressPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CircularProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.trackColor != trackColor ||
+        oldDelegate.progressColor != progressColor ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }
