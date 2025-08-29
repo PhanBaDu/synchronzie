@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:synchronzie/shared/colors/colors.dart';
 
 class NavigationItem extends StatelessWidget {
   final IconData inactiveIcon;
@@ -20,18 +21,21 @@ class NavigationItem extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          isSelected ? activeIcon : inactiveIcon,
-          color: isSelected ? const Color(0xFFFF2056) : const Color(0xFF737373),
-          size: 24,
-        ),
+        isSelected
+            ? ShaderMask(
+                shaderCallback: (bounds) =>
+                    AppColors.customGradient.createShader(bounds),
+                child: Icon(activeIcon, color: Colors.white, size: 24),
+              )
+            : Icon(inactiveIcon, color: AppColors.mutedForeground, size: 24),
         if (!isSelected)
           Text(
             label,
             style: const TextStyle(
+              fontFamily: 'Inter',
               fontSize: 12,
-              color: Color(0xFF737373),
-              fontWeight: FontWeight.w400,
+              color: AppColors.mutedForeground,
+              fontWeight: FontWeight.w500,
             ),
           ),
       ],
