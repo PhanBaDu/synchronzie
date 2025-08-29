@@ -60,9 +60,7 @@ class _MeasurePageState extends State<MeasurePage> {
       setState(() {
         _controller = controller;
       });
-    } catch (_) {
-      // Ignore errors for now; could show a dialog if needed
-    }
+    } catch (_) {}
     _isToggling = false;
   }
 
@@ -72,7 +70,6 @@ class _MeasurePageState extends State<MeasurePage> {
     final controller = _controller;
     if (mounted) {
       setState(() {
-        // Remove preview from tree before disposing to avoid build on disposed controller
         _controller = null;
       });
     } else {
