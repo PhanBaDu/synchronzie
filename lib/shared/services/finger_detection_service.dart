@@ -12,6 +12,8 @@ class FingerDetectionConfig {
   final int historySize; // số mẫu lịch sử để kiểm tra biến thiên
   final int minHistoryMs; // tối thiểu thời gian lịch sử để đánh giá
   final double minTemporalVariation; // ngưỡng biến thiên tương đối tối thiểu
+  final bool
+  requireTemporalValidation; // có bắt buộc kiểm tra biến thiên thời gian không
 
   const FingerDetectionConfig({
     this.throttleMs = 200,
@@ -24,6 +26,7 @@ class FingerDetectionConfig {
     this.historySize = 24,
     this.minHistoryMs = 1500,
     this.minTemporalVariation = 0.01,
+    this.requireTemporalValidation = true,
   });
 }
 
@@ -168,11 +171,19 @@ class FingerDetectionService {
     avgR /= sampleCount;
     final double coverage = redDominantCount / (sampleCount + 1e-6);
     _pushHistory(avgR);
-    final bool hasTemporalVariation = _hasEnoughVariation();
-    final bool detected =
-        coverage > config.coverageThreshold &&
-        avgR > config.minRedLuma &&
-        hasTemporalVariation;
+
+    // Màu cơ bản phải đạt trước
+    final bool baseColorOk =
+        coverage > config.coverageThreshold && avgR > config.minRedLuma;
+    bool detected = false;
+    if (baseColorOk) {
+      if (!config.requireTemporalValidation) {
+        detected = true;
+      } else {
+        final bool hasTemporalVariation = _hasEnoughVariation();
+        detected = hasTemporalVariation;
+      }
+    }
 
     return FingerDetectionResult(
       detected: detected,
