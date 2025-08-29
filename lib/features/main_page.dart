@@ -15,7 +15,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,9 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: CupertinoColors.secondarySystemBackground,
       tabBar: CupertinoTabBar(
         backgroundColor: CupertinoColors.white.withOpacity(0.9),
-        border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
+        border: Border.all(color: AppColors.mutedForeground.withOpacity(0.1)),
+        activeColor: AppColors.primary,
+        inactiveColor: AppColors.mutedForeground,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {

@@ -14,16 +14,12 @@ class ProfilePage extends StatelessWidget {
         backgroundColor: CupertinoColors.white.withOpacity(0.7),
         automaticBackgroundVisibility: false,
         border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
-        middle: ShaderMask(
-          shaderCallback: (bounds) =>
-              AppColors.customGradient.createShader(bounds),
-          child: Text(
-            'Profile',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.w700,
-            ),
+        middle: Text(
+          'Profile',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

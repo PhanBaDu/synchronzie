@@ -13,7 +13,7 @@ class MeasurePage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoColors.white.withOpacity(0.7),
         automaticBackgroundVisibility: false,
-        border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
+        border: Border.all(color: AppColors.mutedForeground.withOpacity(0.1)),
         middle: Text(
           'Measure',
           style: TextStyle(

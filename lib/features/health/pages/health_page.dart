@@ -13,17 +13,13 @@ class HealthPage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoColors.white.withOpacity(0.7),
         automaticBackgroundVisibility: false,
-        border: Border.all(color: CupertinoColors.systemGrey.withOpacity(0.1)),
-        middle: ShaderMask(
-          shaderCallback: (bounds) =>
-              AppColors.customGradient.createShader(bounds),
-          child: Text(
-            'Health',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.w700,
-            ),
+        border: Border.all(color: AppColors.mutedForeground.withOpacity(0.1)),
+        middle: Text(
+          'Health',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            color: AppColors.primary,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
