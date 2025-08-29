@@ -23,8 +23,10 @@ class _MeasurePageState extends State<MeasurePage>
   int measurementDurationSeconds = 35; // dễ dàng thay đổi thời gian đo
   bool _fingerOn = false;
   bool _streaming = false;
-  // các cờ throttling đã chuyển vào service
-  final FingerDetectionService _detector = FingerDetectionService();
+
+  final FingerDetectionService _detector = FingerDetectionService(
+    config: FingerDetectionConfig(throttleMs: 100),
+  );
 
   @override
   void initState() {
