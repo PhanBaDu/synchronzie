@@ -1,37 +1,5 @@
-import Flutter
-import UIKit
 import AVFoundation
 
-@main
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    if let controller = window?.rootViewController as? FlutterViewController {
-      let channel = FlutterMethodChannel(name: "heart_rate_plugin", binaryMessenger: controller.binaryMessenger)
-      let analyzer = NativeHeartAnalyzer()
-      channel.setMethodCallHandler { call, result in
-        switch call.method {
-        case "startCamera":
-          analyzer.start()
-          result(nil)
-        case "stopCamera":
-          analyzer.stop()
-          result(nil)
-        case "isFingerDetected":
-          result(analyzer.fingerDetected)
-        default:
-          result(FlutterMethodNotImplemented)
-        }
-      }
-    }
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-
-// Inline native analyzer to ensure it's in build scope
 class NativeHeartAnalyzer: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
   private let session = AVCaptureSession()
   private let queue = DispatchQueue(label: "hr.native.queue")
@@ -83,14 +51,14 @@ class NativeHeartAnalyzer: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     guard let base = CVPixelBufferGetBaseAddress(pixelBuffer) else { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly); return }
 
     let buf = base.bindMemory(to: UInt8.self, capacity: CVPixelBufferGetDataSize(pixelBuffer))
-    let bytesPerPixel = 4 // BGRA
+    let stride = 4 // BGRA
     var sumR: Int = 0
     var count: Int = 0
     let step = 8 // subsample
     for y in stride(from: height/3, to: 2*height/3, by: step) {
-      let row = buf.advanced(by: y * CVPixelBufferGetBytesPerRow(pixelBuffer))
+      let row = buf + y * CVPixelBufferGetBytesPerRow(pixelBuffer)
       for x in stride(from: width/3, to: 2*width/3, by: step) {
-        let p = row.advanced(by: x * bytesPerPixel)
+        let p = row + x * stride
         let r = p[2]
         sumR += Int(r)
         count += 1
@@ -102,3 +70,5 @@ class NativeHeartAnalyzer: NSObject, AVCaptureVideoDataOutputSampleBufferDelegat
     fingerDetected = avgR > 120.0
   }
 }
+
+

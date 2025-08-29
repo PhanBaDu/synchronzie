@@ -2,9 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:synchronzie/shared/colors/colors.dart';
 import 'package:synchronzie/shared/permissions/camera_permission.dart';
-import 'package:camera/camera.dart';
 import 'package:synchronzie/features/measure/widgets/camera_overlay.dart';
 import 'package:synchronzie/features/measure/widgets/progress_ring.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 
 @RoutePage()
 class MeasurePage extends StatefulWidget {
@@ -16,10 +17,13 @@ class MeasurePage extends StatefulWidget {
 
 class _MeasurePageState extends State<MeasurePage>
     with SingleTickerProviderStateMixin {
-  CameraController? _controller;
+  bool _isRunning = false;
   bool _isToggling = false;
   late final AnimationController _progressController;
   int measurementDurationSeconds = 35; // dễ dàng thay đổi thời gian đo
+  static const MethodChannel _hr = MethodChannel('heart_rate_plugin');
+  bool _fingerOnLens = false;
+  Timer? _pollTimer;
 
   @override
   void initState() {
@@ -49,38 +53,26 @@ class _MeasurePageState extends State<MeasurePage>
     if (!ok) return;
 
     try {
-      final cameras = await availableCameras();
-      final back = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras.first,
-      );
-
-      final controller = CameraController(
-        back,
-        ResolutionPreset.max,
-        enableAudio: false,
-      );
-      await controller.initialize();
-      try {
-        await controller.setFocusMode(FocusMode.auto);
-      } catch (_) {}
-      try {
-        await controller.setExposureMode(ExposureMode.auto);
-      } catch (_) {}
-      try {
-        await controller.setZoomLevel(1.0);
-      } catch (_) {}
-      await controller.setFlashMode(FlashMode.torch);
-      if (!mounted) {
-        await controller.dispose();
-        return;
-      }
+      await _hr.invokeMethod('startCamera');
+      if (!mounted) return;
       setState(() {
-        _controller = controller;
+        _isRunning = true;
       });
       _progressController
         ..reset()
         ..forward();
+      _pollTimer?.cancel();
+      _pollTimer = Timer.periodic(Duration(milliseconds: 300), (_) async {
+        try {
+          final res = await _hr.invokeMethod('isFingerDetected');
+          final on = res == true;
+          if (mounted && on != _fingerOnLens) {
+            setState(() {
+              _fingerOnLens = on;
+            });
+          }
+        } catch (_) {}
+      });
     } catch (_) {}
     _isToggling = false;
   }
@@ -88,37 +80,31 @@ class _MeasurePageState extends State<MeasurePage>
   Future<void> _stopCamera() async {
     if (_isToggling) return;
     _isToggling = true;
-    final controller = _controller;
-    if (mounted) {
-      setState(() {
-        _controller = null;
-      });
-    } else {
-      _controller = null;
-    }
+    _pollTimer?.cancel();
+    _pollTimer = null;
     try {
       _progressController.stop();
       _progressController.reset();
     } catch (_) {}
-    if (controller != null) {
-      try {
-        if (controller.value.isInitialized) {
-          await controller.setFlashMode(FlashMode.off);
-        }
-      } catch (_) {}
-      await controller.dispose();
+    try {
+      await _hr.invokeMethod('stopCamera');
+    } catch (_) {}
+    if (mounted) {
+      setState(() {
+        _isRunning = false;
+        _fingerOnLens = false;
+      });
     }
     _isToggling = false;
   }
 
   @override
-  void dispose() {
-    final controller = _controller;
-    _controller = null;
-    if (controller != null) {
-      controller.setFlashMode(FlashMode.off).catchError((_) {});
-      controller.dispose();
-    }
+  Future<void> dispose() async {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    try {
+      await _hr.invokeMethod('stopCamera');
+    } catch (_) {}
     _progressController.dispose();
     super.dispose();
   }
@@ -153,7 +139,7 @@ class _MeasurePageState extends State<MeasurePage>
                       color: CupertinoColors.white,
                       child: Center(
                         child: CameraOverlay(
-                          controller: _controller,
+                          controller: null,
                           size: 380,
                           fallbackColor: AppColors.primary,
                           overlayAsset: 'assets/images/heart_rate.png',
@@ -205,18 +191,14 @@ class _MeasurePageState extends State<MeasurePage>
                         child: CupertinoButton(
                           minSize: 0,
                           onPressed: () async {
-                            if (_controller == null ||
-                                !_controller!.value.isInitialized) {
+                            if (!_isRunning) {
                               await _startCamera();
                             } else {
                               await _stopCamera();
                             }
                           },
                           child: Text(
-                            _controller == null ||
-                                    !_controller!.value.isInitialized
-                                ? "Start"
-                                : "Stop",
+                            !_isRunning ? "Start" : "Stop",
                             style: TextStyle(
                               color: CupertinoColors.white,
                               fontFamily: 'Inter',
@@ -228,6 +210,24 @@ class _MeasurePageState extends State<MeasurePage>
                       ),
                     ),
                   ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    !_isRunning
+                        ? 'Nhấn Start để bật camera và đo'
+                        : (_fingerOnLens
+                              ? 'Đã nhận ngón tay – đang đo...'
+                              : 'Hãy đặt ngón tay lên camera sau để bắt đầu đo'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _fingerOnLens
+                          ? AppColors.primary
+                          : AppColors.mutedForeground,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 Container(
                   height: 50,
