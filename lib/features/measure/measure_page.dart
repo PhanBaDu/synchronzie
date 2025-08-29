@@ -28,6 +28,7 @@ class MeasurePage extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             child: Column(
               children: [
+                Container(height: 30, color: CupertinoColors.white),
                 Stack(
                   children: [
                     Container(
@@ -41,15 +42,27 @@ class MeasurePage extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 50),
+                          Container(
+                            color: AppColors.primary,
+                            width: double.infinity,
                             child: Image.asset('assets/images/heart_rate.png'),
                           ),
                         ],
                       ),
                     ),
+                    Positioned(
+                      top: 50, // cách trên 20
+                      left: 50, // cách trái 20
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: CupertinoColors.activeBlue,
+                        child: Center(child: Text("Absolute")),
+                      ),
+                    ),
                   ],
                 ),
+                Container(height: 30, color: CupertinoColors.white),
               ],
             ),
           ),
